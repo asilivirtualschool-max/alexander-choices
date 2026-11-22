@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>In Alexander's Sandals – A Map of Choices</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --parch:#f4e7c8; --parch2:#ead6a6; --ink:#2b1d0e; --bronze:#9a5b1e; --gold:#d9a521;
+  --sea:#5f8fa8; --sea2:#7fb0c6; --land:#e9d6a3; --land2:#d8bf83; --red:#a8322a; --green:#2f7a4a;
+  --purple:#5b3b8c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:'Nunito',sans-serif;color:var(--ink);
+  background:#2a1c10 radial-gradient(ellipse at top,#4a3018 0%,#1d130a 70%);min-height:100vh}
+h1,h2,h3,.cinzel{font-family:'Cinzel',serif}
+button{font-family:inherit;cursor:pointer}
+.hidden{display:none!important}
+
+/* ---------- start screen ---------- */
+#start{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.scroll{background:var(--parch) linear-gradient(180deg,#f8edd3,#efdcae);border-radius:14px;
+  box-shadow:0 0 0 6px #6b4219,0 0 0 9px var(--gold),0 20px 60px #000a;max-width:760px;width:100%;padding:36px 40px}
+.scroll h1{margin:0 0 4px;font-size:2.3rem;color:var(--bronze);text-align:center;letter-spacing:1px}
+.scroll .sub{text-align:center;font-weight:700;margin-bottom:22px;color:#6b4219}
+.scroll p{line-height:1.55;font-size:1.05rem}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.steps div{background:#fff8e6;border:2px solid var(--land2);border-radius:10px;padding:12px;text-align:center;font-weight:700}
+.steps span{display:block;font-size:2rem}
+.field{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.field input{flex:1;min-width:180px;padding:12px 14px;font-size:1.1rem;border:2px solid var(--bronze);border-radius:10px;background:#fffdf5;font-family:inherit}
+.btn{background:linear-gradient(180deg,#c47a2c,#8d4f15);color:#fff;border:none;border-radius:10px;
+  padding:12px 22px;font-size:1.05rem;font-weight:800;box-shadow:0 3px 0 #5c320c;letter-spacing:.3px}
+.btn:hover{filter:brightness(1.08)} .btn:active{transform:translateY(2px);box-shadow:0 1px 0 #5c320c}
+.btn:disabled{background:#b9a98a;box-shadow:none;cursor:not-allowed}
+.btn.ghost{background:#fff8e6;color:var(--bronze);border:2px solid var(--bronze);box-shadow:none}
+.resume{margin-top:14px;font-size:.95rem;text-align:center}
+
+/* ---------- game layout ---------- */
+#game{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(360px,1fr);grid-template-rows:auto 1fr auto;
+  height:100vh;gap:10px;padding:10px}
+header.bar{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--parch);border-radius:10px;padding:8px 16px;box-shadow:0 0 0 3px #6b4219}
+header.bar h2{margin:0;font-size:1.2rem;color:var(--bronze)}
+.meters{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:#fff8e6;border:2px solid var(--land2);border-radius:20px;padding:4px 10px;font-weight:800;font-size:.85rem;white-space:nowrap}
+#mapWrap{position:relative;background:#3b2914;border-radius:10px;overflow:hidden;box-shadow:0 0 0 3px #6b4219}
+#map{width:100%;height:100%;display:block}
+.mapTitle{position:absolute;left:12px;top:10px;background:#f4e7c8e6;border-radius:8px;padding:6px 10px;font-family:'Cinzel';font-weight:800;color:var(--bronze);font-size:.95rem}
+.legend{position:absolute;left:12px;bottom:10px;background:#f4e7c8e6;border-radius:8px;padding:6px 10px;font-size:.78rem;font-weight:700;line-height:1.5}
+.legend i{display:inline-block;width:18px;height:4px;vertical-align:middle;margin-right:6px;border-radius:2px}
+
+#panel{background:var(--parch);border-radius:10px;box-shadow:0 0 0 3px #6b4219;overflow:auto;display:flex;flex-direction:column}
+.scene{position:relative;height:210px;min-height:210px;flex:0 0 auto;overflow:hidden;border-radius:10px 10px 0 0;background:#333}
+.scene video,.scene img{width:100%;height:100%;object-fit:cover;display:block}
+.scene .fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:5rem}
+.scene .tag{position:absolute;left:10px;top:10px;background:#000a;color:#fff;border-radius:6px;padding:4px 9px;font-weight:800;font-size:.85rem}
+.scene .age{position:absolute;right:10px;top:10px;background:var(--gold);color:var(--ink);border-radius:6px;padding:4px 9px;font-weight:800;font-size:.85rem}
+.scene .place{position:absolute;left:0;right:0;bottom:0;padding:24px 14px 8px;background:linear-gradient(transparent,#000c);color:#fff;font-family:'Cinzel';font-size:1.35rem;font-weight:800}
+.body{padding:14px 18px 18px}
+.body h3{margin:0 0 6px;color:var(--bronze);font-size:1.25rem}
+.story{line-height:1.55;font-size:1.02rem;margin:0 0 10px}
+.q{font-weight:800;font-size:1.08rem;background:#fff3cf;border-left:5px solid var(--gold);padding:8px 12px;border-radius:6px;margin:10px 0}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;background:#fffaf0;border:2px solid var(--land2);border-radius:10px;padding:10px 12px;font-size:1rem;line-height:1.4;display:flex;gap:10px;align-items:flex-start}
+.opt b.l{flex:0 0 28px;height:28px;border-radius:50%;background:var(--bronze);color:#fff;display:flex;align-items:center;justify-content:center}
+.opt:hover:not(:disabled){border-color:var(--bronze);background:#fff3da}
+.opt.sel{border-color:var(--purple);background:#efe6ff}
+.opt.alex{border-color:var(--green);background:#e5f5ea}
+.opt:disabled{cursor:default;color:inherit;opacity:1}
+.why{margin-top:10px}
+.why label{font-weight:800;font-size:.95rem}
+.why textarea{width:100%;min-height:62px;margin-top:4px;padding:8px 10px;border:2px solid var(--land2);border-radius:8px;font-family:inherit;font-size:1rem;background:#fffdf5;resize:vertical}
+.hint{font-size:.85rem;color:#7a5a32;margin-top:4px}
+.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.reveal{margin-top:12px;border-radius:10px;padding:12px 14px;background:#fff;border:3px solid var(--green)}
+.reveal.diff{border-color:var(--purple)}
+.reveal h4{margin:0 0 6px;font-family:'Cinzel';font-size:1.1rem}
+.reveal .match{display:inline-block;font-weight:800;border-radius:20px;padding:3px 10px;margin-bottom:8px;color:#fff}
+.reveal p{margin:6px 0;line-height:1.5}
+.think{background:#f1ebff;border-radius:8px;padding:8px 10px;font-weight:700;margin-top:8px}
+.result{background:#fbf1dc;border-radius:8px;padding:8px 10px;margin-top:6px}
+
+#timeline{grid-column:1/3;background:var(--parch);border-radius:10px;box-shadow:0 0 0 3px #6b4219;padding:8px 18px 6px;position:relative}
+#tl{width:100%;height:64px;display:block}
+.tlhead{display:flex;justify-content:space-between;font-weight:800;font-size:.85rem;color:#6b4219}
+
+/* ---------- end screen ---------- */
+#end{min-height:100vh;padding:24px;display:flex;justify-content:center}
+#end .scroll{max-width:1000px}
+table.cmp{width:100%;border-collapse:collapse;margin:12px 0;font-size:.92rem;background:#fffaf0}
+table.cmp th,table.cmp td{border:1px solid var(--land2);padding:6px 8px;vertical-align:top;text-align:left}
+table.cmp th{background:var(--bronze);color:#fff}
+.same{color:var(--green);font-weight:800}.diffc{color:var(--purple);font-weight:800}
+.traits{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.trait{background:#fffaf0;border:2px solid var(--land2);border-radius:10px;padding:10px}
+.trait .barbg{height:12px;background:#eadbb8;border-radius:6px;overflow:hidden;margin-top:6px}
+.trait .barfg{height:100%;border-radius:6px}
+.big{font-size:3rem;font-family:'Cinzel';color:var(--bronze);text-align:center;margin:6px 0}
+@media (max-width:980px){
+  #game{grid-template-columns:1fr;grid-template-rows:auto 46vh auto auto;height:auto}
+  header.bar,#timeline{grid-column:1}
+  .steps,.traits{grid-template-columns:1fr}
+}
+@media print{
+  body{background:#fff} #end .scroll{box-shadow:none;padding:0} .noprint{display:none!important}
+}
+.pulse{animation:pulse 1.4s infinite}
+@keyframes pulse{0%{r:7}50%{r:12}100%{r:7}}
+</style>
+</head>
+<body>
+
+<!-- ================= START ================= -->
+<section id="start">
+  <div class="scroll">
+    <h1>In Alexander's Sandals</h1>
+    <div class="sub">A Map of Choices · 356 – 323 BC</div>
+    <p>Alexander of Macedon became king at 20 and built one of the biggest empires the world had ever seen before he died at 32. Along the way he made huge decisions: some brave, some clever, some cruel.</p>
+    <p><b>Your mission:</b> travel his route across the map. At each stop on the timeline, <b>you</b> decide what to do and explain why. Then find out what Alexander really did and what happened next.</p>
+    <div class="steps">
+      <div><span>🗺️</span>Read the situation</div>
+      <div><span>🤔</span>Choose and give your reason</div>
+      <div><span>⚖️</span>Compare with Alexander</div>
+    </div>
+    <p style="font-size:.95rem">There is no single "right" answer. At the end you will see how much you think like Alexander, and decide: <b>does he deserve to be called "Great"?</b></p>
+    <div class="field">
+      <input id="pname" placeholder="Your name" maxlength="40">
+      <input id="pclass" placeholder="Class (e.g. 5B)" maxlength="12" style="max-width:160px;min-width:120px">
+      <button class="btn" id="go">Begin the journey ➜</button>
+    </div>
+    <div class="resume hidden" id="resumeBox">You have a journey in progress. <button class="btn ghost" id="resumeBtn" style="padding:6px 12px;font-size:.9rem">Continue it</button> <button class="btn ghost" id="resetBtn" style="padding:6px 12px;font-size:.9rem">Start over</button></div>
+  </div>
+</section>
+
+<!-- ================= GAME ================= -->
+<section id="game" class="hidden">
+  <header class="bar">
+    <h2>In Alexander's Sandals</h2>
+    <div class="meters" id="meters"></div>
+  </header>
+  <div id="mapWrap">
+    <svg id="map" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="mapTitle" id="chapterTitle">Chapter 1 · The Young Prince</div>
+    <div class="legend">
+      <div><i style="background:#a8322a"></i>Alexander's route</div>
+      <div><i style="background:#c9a227;height:8px;opacity:.5"></i>His empire (323 BC)</div>
+    </div>
+  </div>
+  <div id="panel"></div>
+  <div id="timeline">
+    <div class="tlhead"><span>356 BC · Born in Pella</span><span id="tlNow"></span><span>323 BC · Dies in Babylon</span></div>
+    <svg id="tl" viewBox="0 0 1000 64" preserveAspectRatio="none"></svg>
+  </div>
+</section>
+
+<!-- ================= END ================= -->
+<section id="end" class="hidden"><div class="scroll" id="endBox"></div></section>
+
+<script>
+/* ===================================================================
+   MEDIA SLOTS – put Dreamina clips/images in a folder called "media"
+   next to this file, named with the scene id, e.g. media/granicus.mp4
+   (or .jpg / .png / .webp). If no file is found, an emoji scene shows.
+   =================================================================== */
+const MEDIA_DIR = 'media/';
+
+/* ---------------- Map data (lon, lat) ---------------- */
+const W=806,H=416;
+const P=(lon,lat)=>[ (lon-18)*13.44, (46-lat)*16 ];
+const pts=a=>a.map(([lo,la])=>P(lo,la).map(v=>v.toFixed(1)).join(',')).join(' ');
+const line=a=>'M'+a.map(([lo,la])=>P(lo,la).map(v=>v.toFixed(1)).join(',')).join(' L');
+
+const WATER={
+ med:[[18,30.4],[20,30.6],[20.1,32.1],[22,32.9],[24,32.1],[25.2,31.6],[27,31.3],[29.9,31.2],[31.2,31.6],[32.3,31.3],[34.3,31.3],[34.9,32.5],[35.2,33.3],[35.6,34.5],[35.8,35.5],[36.1,36.6],[35.3,36.6],[34.5,36.8],[33.5,36.2],[32.4,36.1],[31.2,36.8],[30.6,36.8],[29.5,36.3],[28.3,36.7],[27.4,37.1],[27.2,37.9],[26.8,38.4],[26.4,38.7],[26.9,39.4],[26.1,39.5],[26.2,40.1],[26.7,40.4],[26.2,40.6],[25.6,40.9],[24.5,40.9],[23.8,40.7],[22.9,40.6],[22.6,40.2],[22.9,39.4],[23.3,39.1],[22.9,38.9],[23.9,38.3],[24,37.7],[23.2,37.9],[22.9,37.5],[23.1,36.5],[22.5,36.4],[21.7,36.8],[21.6,37.4],[21.1,37.8],[21.4,38.3],[22.4,38.2],[21.3,38.5],[20.8,39],[20.2,39.6],[19.4,40.4],[19.5,41.2],[19.4,41.9],[18.5,42.4],[18,42.6]],
+ marmara:[[26.6,40.3],[27.3,40.6],[27.6,40.95],[28.9,41.05],[29.4,40.8],[29.0,40.4],[27.8,40.35],[27,40.1]],
+ black:[[28.9,41.15],[28.1,41.6],[27.9,42.6],[27.7,43.4],[28.6,44.3],[29.6,45.1],[30.7,46.4],[31.9,46.6],[33.6,46],[32.6,45.3],[33.5,44.5],[34.5,44.7],[35.5,45.1],[36.6,45.4],[37.6,44.7],[38.7,44.3],[39.8,43.4],[41.0,42.6],[41.6,41.6],[40.3,41],[38.3,40.95],[36.6,41.3],[35.3,42],[33.4,42],[31.4,41.1],[29.3,41.2]],
+ caspian:[[47.5,46.6],[47.2,44.6],[47.5,43],[48.5,41.8],[49.3,40.4],[49,39.2],[48.9,38.4],[49.5,37.5],[50.4,37.1],[51.8,36.6],[53.9,36.9],[53.9,38],[53.1,39.3],[53.8,40.6],[52.8,41.5],[52.6,42.7],[51.3,43.4],[50.6,44.4],[51.4,45.2],[53.1,45.6],[53,46.6]],
+ red:[[32.5,29.95],[32.7,29.2],[33.5,27.8],[34.3,26.2],[35.2,24.5],[35.7,23.6],[36.9,22],[37.3,20],[40.3,20],[39.2,21.7],[38.6,23.4],[37.4,25.3],[36.5,26.4],[35.5,27.8],[34.9,29.5],[34.6,28.1],[34.3,27.8],[33.6,28.4],[32.6,29.9]],
+ arab:[[57.8,20],[58.8,21.5],[59.8,22.5],[58.6,23.6],[57.2,24],[56.4,24.8],[56.3,26.2],[55.5,25.5],[54.5,24.3],[52.5,24.2],[51.6,24.3],[51.5,25.9],[50.8,25],[50.3,25.8],[49.8,26.8],[48.5,28.3],[48,29.9],[48.7,30.1],[50.2,29.9],[51,28.8],[52.6,27.4],[54.5,26.6],[56,27.1],[57.2,25.8],[59,25.4],[61.6,25.2],[64.5,25.2],[66.6,25.4],[67.3,24.6],[68.4,23.6],[69.2,22.4],[70.2,21],[71.5,20.9],[72.6,21.6],[72.9,20.5],[72.9,20]]
+};
+const ISLANDS={
+ crete:[[23.5,35.3],[24.2,35.6],[25.5,35.4],[26.3,35.25],[26.1,35],[24.8,35.1],[23.6,35.2]],
+ cyprus:[[32.3,34.9],[33.2,35.4],[34.6,35.7],[34.1,35.3],[34,34.95],[33,34.6],[32.6,34.7]],
+ euboea:[[22.8,39],[23.5,38.7],[24.6,38.1],[24.2,38.2],[23.2,38.6]]
+};
+const RIVERS={
+ nile:[[33,20],[33,21.5],[32.9,24],[32.6,25.7],[31.8,26.6],[31,27.6],[30.9,29],[31.2,30.1],[30.6,30.9],[30.4,31.4]],
+ nile2:[[31.2,30.1],[31.5,30.9],[31.8,31.5]],
+ tigris:[[40.5,38.4],[42,37.2],[43.1,36.3],[43.6,35],[44.4,33.3],[45.6,32.3],[46.6,31.4],[47.4,31],[48,30]],
+ euph:[[38.6,39.2],[38.3,37.5],[38.4,36.8],[39.6,35.9],[40.5,34.8],[41.9,34.4],[43.2,33.3],[44.3,32.5],[45.6,31.2],[46.6,31],[47.4,31]],
+ indus:[[75.2,35.6],[73.8,35.1],[72.6,34],[71.4,32.9],[71,31.4],[70.6,29.5],[69.6,28.2],[68.5,26.6],[68.2,25.4],[67.6,24.4]],
+ jhelum:[[74.5,34.1],[73.6,33.3],[73.5,32.9],[72.8,32.2],[72.1,31.5],[71.7,31]],
+ beas:[[77.2,32.1],[76.1,31.8],[75.4,31.6],[74.9,31.1],[73.5,30],[72,29]],
+ oxus:[[72,37.1],[69.5,37.2],[67.5,37.3],[65.7,37.9],[63.5,39.2],[61.5,40.9],[60.2,42.2],[59.6,43.5]],
+ jax:[[72.5,40.9],[70,40.7],[68.8,40.4],[68.2,41.9],[66.3,43.8],[64,44.8],[61.7,45.8]]
+};
+const SEA_LABELS=[["Mediterranean Sea",24,33.6],["Black Sea",34,43.4],["Caspian\nSea",50.6,41.5],["Red Sea",36.4,23.5],["Persian Gulf",50.7,27.4],["Arabian Sea",63,22.2],["Aegean",25,38.9]];
+const LAND_LABELS=[["GREECE",21.4,39.9],["MACEDON",22.2,41.6],["ASIA MINOR",31.5,38.6],["EGYPT",29,27.5],["MESOPOTAMIA",42.2,33.9],["PERSIA",55.5,31.5],["BACTRIA",66.5,35.8],["SOGDIANA",65,40.9],["INDIA",74.5,27.5],["GEDROSIA",62.5,27.3],["ARABIA",44,25],["LIBYA",22,28.6]];
+const EMPIRE=[[20.5,41.8],[23,42.6],[26.6,42.2],[28.5,41.3],[31,41.2],[34,41.8],[36.6,41.1],[39.8,41],[41.6,41.3],[44,41.5],[47,41.8],[49.2,40.4],[50,38],[53.5,37.4],[55.5,38.4],[58.5,38.2],[61,39.4],[63.6,41.3],[66,42],[68.6,41.7],[70.4,41.2],[71,39.8],[71.6,37.8],[73.5,36.6],[75,35],[76.6,32.2],[75.6,30.3],[73,28.4],[71,26],[69.2,24],[67.3,24.7],[64.5,25.3],[61.6,25.3],[59,25.5],[57.2,25.9],[56,27.2],[54.5,26.7],[52.6,27.5],[51,28.9],[50.2,29.9],[48,29.9],[46.5,29.8],[44,31],[42,32.6],[39,32.5],[36.5,31.5],[35,29.5],[34.4,28.2],[33.4,26],[32.9,24.2],[30.5,24.6],[27.5,26],[25,29],[24.6,31.8],[25.2,31.6],[27,31.3],[29.9,31.2],[32.3,31.3],[34.3,31.3],[35.2,33.3],[36.1,36.6],[31.2,36.8],[28.3,36.7],[26.4,38.7],[26.2,40.1],[23.8,40.7],[22.9,39.4],[21.3,38.5],[20.8,39],[19.6,40.4],[20.3,41.4]];
+
+/* ---------------- Decision points ---------------- */
+const CHAPTERS=["The Young Prince","Into Asia","Conquering Persia","Lord of Asia","The Edge of the World"];
+const TRAITS={
+  bold:{name:"Bold",icon:"🦁",color:"#c0392b"},
+  careful:{name:"Careful",icon:"🛡️",color:"#2471a3"},
+  clever:{name:"Clever",icon:"🦉",color:"#7d3c98"},
+  merciful:{name:"Merciful",icon:"🕊️",color:"#229954"},
+  ruthless:{name:"Ruthless",icon:"⚔️",color:"#6e2c00"},
+  respectful:{name:"Respectful of others",icon:"🤝",color:"#b7950b"}
+};
+const D=[
+{id:"bucephalus",ch:0,year:344,age:12,place:"Pella, Macedon",lon:22.5,lat:40.75,icon:"🐎",bg:"linear-gradient(#f6c87a,#9b6a2f)",
+ title:"The Wild Horse",
+ story:"A horse dealer brings a huge black stallion called Bucephalus to King Philip. It rears and kicks, and no rider can get on. Philip is about to send it away. Young Alexander watches closely and notices that the horse seems scared of its own moving shadow.",
+ q:"You are 12-year-old Alexander. What do you do?",
+ opts:[
+  {t:"Say nothing. Even the king's best riders failed, so a boy should not try.",tr:"careful"},
+  {t:"Tell the grooms to tie the horse up and whip it until it obeys.",tr:"ruthless"},
+  {t:"Ask to try. Turn the horse to face the sun so it can't see its shadow, then calm it and climb on.",tr:"clever"}],
+ alex:2,
+ did:"Alexander bet his father he could tame the horse. He turned Bucephalus towards the sun, spoke to him gently and rode him. Philip was so impressed that, according to the story, he said Macedon would be too small for his son.",
+ then:"Bucephalus carried Alexander into battle for about 18 years. When the horse died in India, Alexander named a city after him.",
+ think:"Alexander noticed something others missed. Why is careful observation useful for a leader?"},
+
+{id:"throne",ch:0,year:336,age:20,place:"Aegae, Macedon",lon:22.3,lat:40.5,icon:"👑",bg:"linear-gradient(#6c3483,#1b2631)",
+ title:"The King is Dead",
+ story:"King Philip is murdered by one of his bodyguards at his daughter's wedding. Alexander is 20. Some nobles want a different king, and a powerful general named Attalus is his enemy. Many people wonder if someone so young is ready to rule.",
+ q:"What do you do to become king?",
+ opts:[
+  {t:"Share power with a council of older nobles until you are more experienced.",tr:"careful"},
+  {t:"Act fast: win over the army, and have your rivals for the throne arrested or killed.",tr:"ruthless"},
+  {t:"Run away to your mother's homeland of Epirus where you will be safe.",tr:"careful"}],
+ alex:1,
+ did:"Alexander moved quickly. He got the army to accept him as king and got rid of possible rivals. Attalus was executed on his orders.",
+ then:"Within weeks no one in Macedon could challenge him. He went to Corinth and was made leader of the Greek city-states, just like his father.",
+ think:"Was it fair to remove rivals before they did anything? Why might a new ruler feel they had to?"},
+
+{id:"thebes",ch:0,year:335,age:21,place:"Thebes, Greece",lon:23.3,lat:38.3,icon:"🏛️",bg:"linear-gradient(#e59866,#6e2c00)",
+ title:"Thebes Rebels",
+ story:"While Alexander is fighting in the north, a rumour spreads that he is dead. The Greek city of Thebes rebels against Macedon, and Athens might join them. Alexander marches south faster than anyone expects.",
+ q:"Thebes refuses to surrender. What do you do?",
+ opts:[
+  {t:"Forgive Thebes so that the Greeks will like you and see you as fair.",tr:"merciful"},
+  {t:"Capture Thebes and destroy it completely as a warning to every other Greek city.",tr:"ruthless"},
+  {t:"Surround the city and wait, offering talks until they give in.",tr:"careful"}],
+ alex:1,
+ did:"Alexander captured Thebes and destroyed it. Thousands were killed and about 30,000 people were sold as slaves. He spared only temples and the house of the poet Pindar.",
+ then:"His cruel tactics worked: the other Greek city-states were too frightened to rebel again, and Athens quickly made peace.",
+ think:"Fear kept Greece quiet. But what might the Greeks have really thought of Alexander after this?"},
+
+{id:"granicus",ch:1,year:334,age:22,place:"River Granicus",lon:27.2,lat:40.2,icon:"⚔️",bg:"linear-gradient(#5dade2,#1a5276)",
+ title:"Battle at the River",
+ story:"Alexander crosses into Asia with about 40,000 soldiers. A Persian army waits on the far side of the River Granicus, on a steep, muddy bank. His experienced general Parmenio says: \"It is late in the day. Wait until dawn and cross while the Persians are not ready.\"",
+ q:"What do you do?",
+ opts:[
+  {t:"Listen to Parmenio and wait until dawn.",tr:"careful"},
+  {t:"Lead the cavalry charge across the river yourself, right now.",tr:"bold"},
+  {t:"March along the river to look for an easier place to cross.",tr:"clever"}],
+ alex:1,
+ did:"Alexander refused to wait. Wearing a helmet with white plumes so everyone could see him, he led the charge across the river. In the fighting he was nearly killed, but his friend Cleitus saved his life by cutting off an attacker's arm.",
+ then:"The Persians were defeated. Alexander sent 300 sets of Persian armour to Athens as a gift to show what he had done.",
+ think:"Leading from the front inspired his soldiers. What was the risk for the whole army?"},
+
+{id:"gordian",ch:1,year:333,age:23,place:"Gordium",lon:32,lat:39.6,icon:"🪢",bg:"linear-gradient(#f9e79f,#9a7d0a)",
+ title:"The Gordian Knot",
+ story:"In the city of Gordium stands an ancient cart tied with a huge, tangled knot. A prophecy says that whoever undoes the knot will rule all of Asia. Many have tried and failed. Your soldiers are watching.",
+ q:"How do you deal with the knot?",
+ opts:[
+  {t:"Patiently work at it for days. Rules are rules: it must be untied properly.",tr:"careful"},
+  {t:"Ignore it. A silly old legend doesn't matter.",tr:"careful"},
+  {t:"Draw your sword and slice right through it.",tr:"bold"}],
+ alex:2,
+ did:"According to the legend, Alexander drew his sword and cut through the knot. (One writer says he cleverly pulled out the pin that held it.)",
+ then:"His soldiers believed the prophecy and felt sure they were destined to conquer Asia. Today, \"cutting the Gordian knot\" means solving a hard problem in a bold, simple way.",
+ think:"Was this cheating or clever? How did the story help Alexander as a leader?"},
+
+{id:"issus",ch:1,year:333,age:23,place:"Issus",lon:36.2,lat:36.9,icon:"🛡️",bg:"linear-gradient(#cd6155,#4a235a)",
+ title:"Darius Runs Away",
+ story:"At Issus, Alexander's cavalry charges straight at the Persian king, Darius III. Darius turns his chariot and flees. He leaves behind his treasure and his family: his mother, his wife and his children.",
+ q:"What do you do with Darius's family?",
+ opts:[
+  {t:"Leave them and chase Darius to capture him.",tr:"bold"},
+  {t:"Treat them with honour and respect, like royalty.",tr:"respectful"},
+  {t:"Keep them as hostages to force Darius to surrender.",tr:"ruthless"}],
+ alex:1,
+ did:"Alexander treated Darius's family with great respect. They kept their royal titles and servants. Darius's mother, Sisygambis, became so close to Alexander that she treated him like a son.",
+ then:"News of his kindness spread. Many Persians began to see Alexander as a fair ruler, not just an invader.",
+ think:"How could kindness to an enemy's family help Alexander win more than a battle?"},
+
+{id:"peace",ch:2,year:332,age:24,place:"Phoenician coast",lon:35.9,lat:34.8,icon:"📜",bg:"linear-gradient(#f5cba7,#a04000)",
+ title:"An Offer of Peace",
+ story:"Darius sends a letter. He offers Alexander all the land west of the River Euphrates, a huge amount of gold, and his daughter in marriage, if Alexander will stop the war. Parmenio says: \"If I were Alexander, I would accept.\"",
+ q:"What is your reply?",
+ opts:[
+  {t:"Accept. You already rule a huge area and your soldiers are tired.",tr:"careful"},
+  {t:"Refuse. Tell Darius to come and call you King of Asia, or fight.",tr:"bold"},
+  {t:"Ask for more land and more gold before you agree.",tr:"clever"}],
+ alex:1,
+ did:"Alexander replied: \"So would I, if I were Parmenio.\" He refused the offer and told Darius he must accept Alexander as King of all Asia.",
+ then:"The war continued. Alexander wanted the whole Persian Empire, not just part of it.",
+ think:"Parmenio wanted peace. Alexander wanted more. Which is a better quality in a leader, and when?"},
+
+{id:"tyre",ch:2,year:332,age:24,place:"Tyre",lon:35.2,lat:33.27,icon:"🏰",bg:"linear-gradient(#85c1e9,#21618c)",
+ title:"The Island City",
+ story:"The rich port of Tyre sits on an island half a mile out to sea, with walls 45 metres high. Tyre refuses to let Alexander in. If he leaves it alone, the Persian navy could use its harbour to attack Greece.",
+ q:"How do you deal with Tyre?",
+ opts:[
+  {t:"Leave Tyre alone and march on to Egypt. It isn't worth the effort.",tr:"careful"},
+  {t:"Build a stone road across the sea to the island and bring your siege towers right up to the walls.",tr:"bold"},
+  {t:"Block the harbour with ships and wait for them to run out of food.",tr:"clever"}],
+ alex:1,
+ did:"Alexander's army built a causeway (a mole) across the sea. The Tyrians burned his towers with a fire ship, so he built a wider one and gathered a fleet from other cities. After seven months his engines broke through the walls.",
+ then:"Tyre fell. Thousands of Tyrians were killed and around 30,000 were sold into slavery. The causeway is still there today: Tyre is now joined to the mainland.",
+ think:"Alexander never gave up. Is refusing to quit always a good thing?"},
+
+{id:"egypt",ch:2,year:331,age:25,place:"Memphis, Egypt",lon:31.25,lat:29.85,icon:"🏺",bg:"linear-gradient(#f7dc6f,#b9770e)",
+ title:"Welcome to Egypt",
+ story:"The Egyptians have hated being ruled by Persia. When Alexander arrives, they open their gates and welcome him. Their priests want to know: will this new ruler respect their gods and their ways?",
+ q:"How will you rule Egypt?",
+ opts:[
+  {t:"Rule as a Greek conqueror and bring in Greek laws and gods.",tr:"ruthless"},
+  {t:"Honour the Egyptian gods, accept the title of pharaoh, and build a new city on the coast.",tr:"respectful"},
+  {t:"Take the treasure and leave quickly to chase Darius.",tr:"bold"}],
+ alex:1,
+ did:"Alexander made offerings to the Egyptian gods and was accepted as pharaoh. He founded the city of Alexandria on the coast and travelled across the desert to the oracle at Siwa, where the priest greeted him as the son of the god Amun (Zeus).",
+ then:"Alexandria became one of the greatest cities in the ancient world, famous for its library and lighthouse. Alexander came to believe he was the son of a god.",
+ think:"Why might respecting local customs make it easier to rule a land?"},
+
+{id:"gaugamela",ch:2,year:331,age:25,place:"Gaugamela",lon:43.4,lat:36.4,icon:"🏹",bg:"linear-gradient(#e6b0aa,#641e16)",
+ title:"The Great Battle",
+ story:"Darius gathers an enormous army, perhaps five times larger than Alexander's, with chariots that have sharp blades on their wheels. Darius has flattened the plain so his chariots can charge. Parmenio says: \"Attack at night, when they can't see how few we are.\"",
+ q:"How do you fight?",
+ opts:[
+  {t:"Attack at night by surprise, as Parmenio says.",tr:"clever"},
+  {t:"Attack in daylight. Open gaps in your lines to let the chariots through, then charge at Darius himself.",tr:"bold"},
+  {t:"Retreat. The Persian army is too big to beat.",tr:"careful"}],
+ alex:1,
+ did:"Alexander said he would not \"steal\" a victory in the dark. In daylight his soldiers stepped aside to let the chariots pass, then speared the drivers. Alexander found a gap in the Persian line and charged straight at Darius.",
+ then:"Darius fled again. The Persian Empire was beaten. Alexander was now King of Asia. Darius was later killed by his own nobles.",
+ think:"Why did Alexander want everyone to see that he won fairly?"},
+
+{id:"persepolis",ch:3,year:330,age:26,place:"Persepolis",lon:52.9,lat:29.9,icon:"🔥",bg:"linear-gradient(#f39c12,#641e16)",
+ title:"The Royal Palace",
+ story:"Alexander captures Persepolis, the magnificent royal capital of Persia. 150 years earlier, the Persian king Xerxes had burned the temples of Athens. Now Xerxes' own palace is in Alexander's hands.",
+ q:"What do you do with the palace?",
+ opts:[
+  {t:"Protect it. It is now YOUR palace and the Persians are now your people.",tr:"respectful"},
+  {t:"Burn it down as revenge for what Persia did to Athens.",tr:"ruthless"},
+  {t:"Let your soldiers take the treasure, but leave the buildings standing.",tr:"careful"}],
+ alex:1,
+ did:"Alexander let his soldiers loot the city. Then, after a feast, the great palace was set on fire and burned down.",
+ then:"Greeks saw it as revenge for Athens. Later, Alexander is said to have regretted it. You can still visit the ruins in Iran today.",
+ think:"Alexander wanted the Persians to accept him as their king. Did burning their palace help or hurt that?"},
+
+{id:"customs",ch:3,year:329,age:27,place:"Bactra",lon:66.9,lat:36.75,icon:"👘",bg:"linear-gradient(#a3e4d7,#117a65)",
+ title:"Greek or Persian?",
+ story:"Alexander now rules millions of Persians and people from many lands. His Macedonian soldiers want him to stay a Macedonian king. But to rule this huge empire, he needs the support of the Persian nobles too.",
+ q:"How will you rule your mixed empire?",
+ opts:[
+  {t:"Stay fully Macedonian. The conquered people must accept your ways.",tr:"careful"},
+  {t:"Mix the cultures: wear some Persian clothes, use Persian officials, train Persian soldiers, and marry a local princess.",tr:"respectful"},
+  {t:"Force everyone to speak Greek and worship Greek gods.",tr:"ruthless"}],
+ alex:1,
+ did:"Alexander began wearing Persian-style clothing, used Persian court customs, trained 30,000 Persian youths as soldiers, and married Roxana, a princess from Bactria.",
+ then:"Many Persians accepted him. But many Macedonians were angry. They felt Alexander was forgetting who had helped him win. Greek and Persian ideas mixed, creating the Hellenistic culture.",
+ think:"Can a leader please everyone? Who gained and who was upset by this choice?"},
+
+{id:"cleitus",ch:3,year:328,age:28,place:"Maracanda (Samarkand)",lon:66.97,lat:39.65,icon:"🍷",bg:"linear-gradient(#bb8fce,#4a235a)",
+ title:"An Argument at the Feast",
+ story:"At a feast, Cleitus, the friend who saved Alexander's life at the Granicus, stands up in front of everyone. He angrily says Alexander is acting like a Persian king and that his father Philip was the real hero. Alexander is furious.",
+ q:"What do you do?",
+ opts:[
+  {t:"Leave the feast to calm down, and speak to Cleitus the next day.",tr:"careful"},
+  {t:"Order the guards to arrest him and put him on trial.",tr:"ruthless"},
+  {t:"Lose your temper and strike out at him.",tr:"ruthless"}],
+ alex:2,
+ did:"In a rage, Alexander grabbed a spear and killed Cleitus.",
+ then:"Alexander was overcome with grief. He stayed in his tent for three days without eating. Some soldiers began to fear their king.",
+ think:"Even great leaders make terrible mistakes. What does this tell us about Alexander's character?"},
+
+{id:"hydaspes",ch:4,year:326,age:30,place:"River Hydaspes, India",lon:73.6,lat:32.9,icon:"🐘",bg:"linear-gradient(#7dcea0,#145a32)",
+ title:"Elephants Across the River",
+ story:"In India, King Porus waits across the flooded River Hydaspes with about 200 war elephants. Alexander's horses are terrified of them. It is monsoon season and the river is fast and deep.",
+ q:"How do you get your army across?",
+ opts:[
+  {t:"Cross straight in front of Porus and fight the elephants head on.",tr:"bold"},
+  {t:"Trick him: make noise in your camp every night, then secretly cross upstream during a storm.",tr:"clever"},
+  {t:"Wait months until the river is low and calm.",tr:"careful"}],
+ alex:1,
+ did:"For many nights, Alexander's troops made noise as if they were about to cross, until Porus stopped reacting. Then, in a thunderstorm, Alexander secretly crossed upstream. When the captured Porus asked to be treated \"like a king,\" Alexander let him keep his kingdom as an ally.",
+ then:"It was Alexander's last great battle. His beloved horse Bucephalus died soon after.",
+ think:"Alexander won with a trick, then showed mercy to Porus. Why might he have let a beaten enemy stay king?"},
+
+{id:"hyphasis",ch:4,year:326,age:30,place:"River Hyphasis (Beas)",lon:75.2,lat:31.6,icon:"⛺",bg:"linear-gradient(#aab7b8,#1c2833)",
+ title:"The Army Says No",
+ story:"Alexander wants to keep marching east to reach the edge of the world. But his soldiers have been away from home for 8 years and marched thousands of kilometres. Monsoon rains have soaked them for weeks. Their leader, Coenus, says they will go no further.",
+ q:"What do you do?",
+ opts:[
+  {t:"Order them to march on. You are the king.",tr:"ruthless"},
+  {t:"Listen to your soldiers and turn back towards home.",tr:"careful"},
+  {t:"Ask only for volunteers to keep going with you.",tr:"bold"}],
+ alex:1,
+ did:"At first Alexander was angry and sulked in his tent for three days, hoping they would change their minds. They didn't. In the end he agreed to turn back, and built 12 huge altars to mark the furthest point of his journey.",
+ then:"His soldiers cheered and wept with joy. It was the only time Alexander's own army defeated him.",
+ think:"Alexander had to give up his dream. Was listening to his army a sign of weakness or wisdom?"},
+
+{id:"gedrosia",ch:4,year:325,age:31,place:"Gedrosian Desert",lon:63,lat:26.5,icon:"🏜️",bg:"linear-gradient(#f8c471,#9c640c)",
+ title:"The Way Home",
+ story:"The army must return to Babylon. There is a known, safer road through the mountains. There is also a route along the coast through the Gedrosian Desert. Legends say no army has ever crossed it, and Alexander wants to do what no one else could.",
+ q:"Which way do you go?",
+ opts:[
+  {t:"Take the safer mountain road, even though it is longer.",tr:"careful"},
+  {t:"Lead the army through the desert to prove you can do the impossible.",tr:"bold"},
+  {t:"Send most of the army home by ship.",tr:"clever"}],
+ alex:1,
+ did:"Alexander sent part of the army by the safer road and led the rest through the Gedrosian Desert. His fleet sailed along the coast.",
+ then:"It was a disaster. In the burning heat, without enough food or water, thousands of soldiers and their families died over 60 days.",
+ think:"Alexander's bold choices usually worked. Why did this one go so wrong?"}
+];
+const FINAL={year:323,age:32,place:"Babylon",lon:44.4,lat:32.5};
+
+/* ---------------- State ---------------- */
+let S={name:"",cls:"",i:0,answers:{},reflect:""};
+const KEY='alexander_choices_v1';
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------------- Map drawing ---------------- */
+function drawMap(){
+  const m=$('#map'); m.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  let s=`<defs>
+    <pattern id="sand" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#e9d6a3"/><circle cx="1" cy="1" r=".6" fill="#d8bf83"/></pattern>
+    <pattern id="waves" width="14" height="8" patternUnits="userSpaceOnUse"><path d="M0 4 q3.5 -3 7 0 t7 0" fill="none" stroke="#8fbcd1" stroke-width=".7"/></pattern>
+    <filter id="sh"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity=".4"/></filter>
+  </defs>
+  <rect width="${W}" height="${H}" fill="url(#sand)"/>
+  <polygon points="${pts(EMPIRE)}" fill="#c9a227" opacity=".28" stroke="#9a7d0a" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+  for(const k in WATER) s+=`<polygon points="${pts(WATER[k])}" fill="#5f8fa8" stroke="#3e6d85" stroke-width="1"/><polygon points="${pts(WATER[k])}" fill="url(#waves)" opacity=".6"/>`;
+  // bottom edge sea for Arabian Sea & Red Sea outside bounds
+  for(const k in ISLANDS) s+=`<polygon points="${pts(ISLANDS[k])}" fill="#e9d6a3" stroke="#3e6d85" stroke-width=".8"/>`;
+  for(const k in RIVERS) s+=`<path d="${line(RIVERS[k])}" fill="none" stroke="#3e7fa3" stroke-width="1.6" stroke-linecap="round"/>`;
+  SEA_LABELS.forEach(([t,lo,la])=>{const [x,y]=P(lo,la);t.split('\n').forEach((tt,j)=>s+=`<text x="${x}" y="${y+j*11}" text-anchor="middle" font-size="9.5" font-style="italic" fill="#e8f4fa" font-family="Nunito">${tt}</text>`)});
+  LAND_LABELS.forEach(([t,lo,la])=>{const [x,y]=P(lo,la);s+=`<text x="${x}" y="${y}" text-anchor="middle" font-size="9" letter-spacing="2" fill="#8a6a35" font-family="Cinzel" font-weight="800" opacity=".8">${t}</text>`});
+  s+=`<g id="route"></g><g id="markers"></g>`;
+  m.innerHTML=s;
+}
+function updateMap(){
+  const done=D.slice(0,S.i+1);
+  const ptsList=[[22.5,40.75],...done.map(d=>[d.lon,d.lat])];
+  if(S.i>=D.length) ptsList.push([FINAL.lon,FINAL.lat]);
+  $('#route').innerHTML=`<path d="${line(ptsList)}" fill="none" stroke="#a8322a" stroke-width="3" stroke-dasharray="7 4" stroke-linecap="round" filter="url(#sh)"/>`;
+  let mk='';
+  D.forEach((d,k)=>{
+    const [x,y]=P(d.lon,d.lat);
+    if(k<S.i){
+      const a=S.answers[d.id]; const same=a&&a.c===d.alex;
+      mk+=`<g style="cursor:pointer" onclick="review(${k})"><circle cx="${x}" cy="${y}" r="8" fill="${same?'#2f7a4a':'#5b3b8c'}" stroke="#fff" stroke-width="2"/><text x="${x}" y="${y+3.3}" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">${k+1}</text><title>${esc(d.place)} – ${d.year} BC</title></g>`;
+    } else if(k===S.i){
+      mk+=`<circle class="pulse" cx="${x}" cy="${y}" r="9" fill="#d9a521" stroke="#fff" stroke-width="2.5"/><text x="${x}" y="${y+3.3}" text-anchor="middle" font-size="9" font-weight="800" fill="#2b1d0e">${k+1}</text>
+      <text x="${x}" y="${y-14}" text-anchor="middle" font-size="11" font-weight="800" fill="#2b1d0e" stroke="#f4e7c8" stroke-width="3" paint-order="stroke">${esc(d.place)}</text>`;
+    }
+  });
+  const [bx,by]=P(22.5,40.75); mk+=`<rect x="${bx-5}" y="${by-5}" width="10" height="10" fill="#a8322a" stroke="#fff" stroke-width="1.5" transform="rotate(45 ${bx} ${by})"/>`;
+  if(S.i>=D.length){const [x,y]=P(FINAL.lon,FINAL.lat);mk+=`<circle cx="${x}" cy="${y}" r="9" fill="#000" stroke="#d9a521" stroke-width="3"/><text x="${x}" y="${y-14}" text-anchor="middle" font-size="11" font-weight="800" stroke="#f4e7c8" stroke-width="3" paint-order="stroke">Babylon – 323 BC</text>`}
+  $('#markers').innerHTML=mk;
+}
+
+/* ---------------- Timeline ---------------- */
+const yx=y=>20+(356-y)/(356-323)*960;
+function drawTimeline(){
+  let s=`<line x1="20" y1="30" x2="980" y2="30" stroke="#9a5b1e" stroke-width="4" stroke-linecap="round"/>`;
+  for(let y=355;y>=325;y-=5) s+=`<line x1="${yx(y)}" y1="24" x2="${yx(y)}" y2="36" stroke="#9a5b1e" stroke-width="1.5"/><text x="${yx(y)}" y="56" text-anchor="middle" font-size="11" fill="#6b4219" font-weight="700">${y} BC</text>`;
+  const cur=Math.min(S.i,D.length-1);
+  // stagger events that share a year
+  const seen={};
+  D.forEach((d,k)=>{
+    seen[d.year]=(seen[d.year]||0)+1; const off=(seen[d.year]-1)*10;
+    const x=yx(d.year)+off, a=S.answers[d.id];
+    let fill='#f4e7c8',stroke='#9a5b1e';
+    if(k<S.i){fill=a&&a.c===d.alex?'#2f7a4a':'#5b3b8c';stroke='#fff'}
+    if(k===S.i&&S.i<D.length){fill='#d9a521';stroke='#2b1d0e'}
+    s+=`<g style="cursor:${k<S.i?'pointer':'default'}" ${k<S.i?`onclick="review(${k})"`:''}><circle cx="${x}" cy="30" r="${k===S.i?9:7}" fill="${fill}" stroke="${stroke}" stroke-width="2"/><title>${d.year} BC – ${esc(d.title)}</title></g>`;
+  });
+  if(S.i>=D.length) s+=`<circle cx="${yx(323)}" cy="30" r="9" fill="#000" stroke="#d9a521" stroke-width="3"/>`;
+  $('#tl').innerHTML=s;
+  const d=D[cur];
+  $('#tlNow').textContent=S.i<D.length?`Now: ${d.year} BC · Alexander is ${d.age}`:'Journey complete';
+}
+
+/* ---------------- Meters ---------------- */
+function counts(){
+  const c={};Object.keys(TRAITS).forEach(k=>c[k]=0);let same=0,n=0;
+  D.forEach(d=>{const a=S.answers[d.id];if(a){n++;c[d.opts[a.c].tr]++;if(a.c===d.alex)same++}});
+  return {c,same,n};
+}
+function updateMeters(){
+  const {same,n}=counts();
+  $('#meters').innerHTML=`<span class="chip">🧭 Stop ${Math.min(S.i+1,D.length)} of ${D.length}</span><span class="chip" style="border-color:#2f7a4a">🟢 Same as Alexander: ${same}</span><span class="chip" style="border-color:#5b3b8c">🟣 Different: ${n-same}</span><span class="chip">👤 ${esc(S.name)}</span>`;
+  const ch=D[Math.min(S.i,D.length-1)].ch; $('#chapterTitle').textContent=`Chapter ${ch+1} · ${CHAPTERS[ch]}`;
+}
+
+/* ---------------- Scene media ---------------- */
+function sceneHTML(d){
+  return `<div class="scene" id="scene" style="background:${d.bg}">
+    <div class="fallback">${d.icon}</div>
+    <span class="tag">${d.year} BC</span><span class="age">Alexander is ${d.age}</span>
+    <div class="place">${esc(d.place)}</div></div>`;
+}
+function loadMedia(d){
+  const box=$('#scene'); if(!box) return;
+  const tryImg=exts=>{
+    if(!exts.length) return;
+    const img=new Image(); img.onload=()=>{img.className='media';box.insertBefore(img,box.firstChild);box.querySelector('.fallback').remove()};
+    img.onerror=()=>tryImg(exts.slice(1)); img.src=MEDIA_DIR+d.id+'.'+exts[0];
+  };
+  const v=document.createElement('video'); v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;
+  v.onloadeddata=()=>{box.insertBefore(v,box.firstChild);const f=box.querySelector('.fallback');if(f)f.remove();v.play().catch(()=>{})};
+  v.onerror=()=>tryImg(['jpg','png','webp','jpeg']);
+  v.src=MEDIA_DIR+d.id+'.mp4';
+}
+
+/* ---------------- Decision panel ---------------- */
+let pick=null;
+function ord(d){S.order=S.order||{};if(!S.order[d.id]){const a=[0,1,2];for(let i=2;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}S.order[d.id]=a;save()}return S.order[d.id]}
+function LT(d,k){return 'ABC'[ord(d).indexOf(k)]||'-'}
+function render(){
+  if(S.i>=D.length){ showFinalStop(); return; }
+  const d=D[S.i]; pick=null;
+  const L='ABC';
+  $('#panel').innerHTML=sceneHTML(d)+`<div class="body">
+    <h3>${S.i+1}. ${esc(d.title)}</h3>
+    <p class="story">${esc(d.story)}</p>
+    <div class="q">${esc(d.q)}</div>
+    <div class="opts">${ord(d).map((k,pos)=>`<button class="opt" data-k="${k}"><b class="l">${L[pos]}</b><span>${esc(d.opts[k].t)}</span></button>`).join('')}</div>
+    <div class="why"><label for="why">Why did you choose this? (Use "because…")</label>
+      <textarea id="why" placeholder="I chose this because…"></textarea>
+      <div class="hint" id="hint">Pick a choice and write at least 8 words to lock in your decision.</div></div>
+    <div class="actions"><button class="btn" id="lock" disabled>🔒 Lock in my decision</button></div>
+    <div id="rev"></div></div>`;
+  document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{pick=+b.dataset.k;document.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===b));check()});
+  $('#why').oninput=check;
+  $('#lock').onclick=lockIn;
+  loadMedia(d); updateMap(); drawTimeline(); updateMeters();
+  $('#panel').scrollTop=0;
+}
+function words(t){return t.trim().split(/\s+/).filter(Boolean).length}
+function check(){
+  const w=words($('#why').value);
+  $('#lock').disabled=!(pick!==null&&w>=8);
+  $('#hint').textContent=pick===null?'Pick a choice first.':(w<8?`Keep going: ${8-w} more word${8-w===1?'':'s'} needed.`:'Ready! Lock in your decision.');
+}
+function revealHTML(d,a){
+  const same=a.c===d.alex, L='ABC';
+  return `<div class="reveal ${same?'':'diff'}">
+    <span class="match" style="background:${same?'#2f7a4a':'#5b3b8c'}">${same?'🟢 You chose the same as Alexander!':'🟣 You chose differently from Alexander'}</span>
+    <h4>What Alexander did: ${LT(d,d.alex)}</h4>
+    <p>${esc(d.did)}</p>
+    <div class="result"><b>What happened next:</b> ${esc(d.then)}</div>
+    ${same?'':`<p style="font-size:.92rem"><b>Your choice (${LT(d,a.c)}):</b> ${esc(d.opts[a.c].t)}<br><i>How might history have been different?</i></p>`}
+    <div class="think">💭 ${esc(d.think)}</div>
+  </div>`;
+}
+function lockIn(){
+  const d=D[S.i];
+  S.answers[d.id]={c:pick,why:$('#why').value.trim()}; save();
+  document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(+b.dataset.k===d.alex)b.classList.add('alex')});
+  $('#why').disabled=true; $('#lock').remove(); $('#hint').remove();
+  $('#rev').innerHTML=revealHTML(d,S.answers[d.id])+`<div class="actions"><button class="btn" id="next">${S.i===D.length-1?'Finish the journey ➜':'Continue the journey ➜'}</button></div>`;
+  $('#next').onclick=()=>{S.i++;save();render()};
+  updateMeters(); drawTimeline();
+  setTimeout(()=>$('#rev')&&$('#rev').scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
+function review(k){
+  const d=D[k],a=S.answers[d.id]; if(!a) return; const L='ABC';
+  $('#panel').innerHTML=sceneHTML(d)+`<div class="body"><h3>${k+1}. ${esc(d.title)} <span style="font-size:.8rem;color:#7a5a32">(review)</span></h3>
+   <p class="story">${esc(d.story)}</p><div class="q">${esc(d.q)}</div>
+   <div class="opts">${ord(d).map((j,pos)=>`<button class="opt ${j===a.c?'sel':''} ${j===d.alex?'alex':''}" disabled><b class="l">${L[pos]}</b><span>${esc(d.opts[j].t)}</span></button>`).join('')}</div>
+   <p><b>Your reason:</b> ${esc(a.why)}</p>${revealHTML(d,a)}
+   <div class="actions"><button class="btn" onclick="render()">Back to current stop ➜</button></div></div>`;
+  loadMedia(d);
+}
+function showFinalStop(){
+  updateMap();drawTimeline();updateMeters();
+  $('#chapterTitle').textContent='The End · Babylon';
+  const d={id:'babylon',year:323,age:32,place:'Babylon',icon:'⚱️',bg:'linear-gradient(#5d6d7e,#17202a)'};
+  $('#panel').innerHTML=sceneHTML(d)+`<div class="body"><h3>The End of the Road</h3>
+   <p class="story">Back in Babylon, Alexander was already planning his next adventure, an invasion of Arabia. In June 323 BC he fell ill with a fever after a feast and died within days. He was 32 years old.</p>
+   <p class="story">He had led his army about 32,000 km, founded more than 20 cities, and ruled an empire that stretched across three continents, from Greece and Egypt to India. Because he left no clear heir, his generals fought over the empire and split it into kingdoms. But Greek language and ideas mixed with Persian, Egyptian and Indian ones, creating the <b>Hellenistic</b> world.</p>
+   <div class="actions"><button class="btn" id="toEnd">See my results ➜</button></div></div>`;
+  loadMedia(d);
+  $('#toEnd').onclick=showEnd;
+}
+
+/* ---------------- End screen ---------------- */
+function showEnd(){
+  $('#game').classList.add('hidden');$('#end').classList.remove('hidden');
+  const {c,same,n}=counts(); const pct=Math.round(same/D.length*100);
+  const max=Math.max(1,...Object.values(c));
+  const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0][0];
+  const alexC={};Object.keys(TRAITS).forEach(k=>alexC[k]=0);D.forEach(d=>alexC[d.opts[d.alex].tr]++);
+  let verdict = pct>=75?"You think a LOT like Alexander. Bold, fast and determined. Watch out: some of his choices were very costly for other people!"
+    : pct>=45?"You agreed with Alexander about half of the time. You share some of his boldness but made your own path too."
+    : "You made very different choices from Alexander. Your empire might have been smaller, but would it have been kinder or safer?";
+  const L='ABC';
+  $('#endBox').innerHTML=`
+    <h1>Journey Complete</h1>
+    <div class="sub">${esc(S.name)}${S.cls?' · '+esc(S.cls):''} · ${new Date().toLocaleDateString()}</div>
+    <div class="big">${same} / ${D.length}</div>
+    <p style="text-align:center;font-weight:800;margin-top:0">choices the same as Alexander (${pct}%)</p>
+    <p style="text-align:center">${verdict}</p>
+    <h3 class="cinzel" style="color:var(--bronze)">Your leadership style</h3>
+    <p style="margin-top:0">Your strongest trait: <b>${TRAITS[top].icon} ${TRAITS[top].name}</b>. The grey bar shows Alexander's choices.</p>
+    <div class="traits">${Object.entries(TRAITS).map(([k,t])=>`<div class="trait"><b>${t.icon} ${t.name}</b>: you ${c[k]} · Alexander ${alexC[k]}
+       <div class="barbg"><div class="barfg" style="width:${c[k]/max*100}%;background:${t.color}"></div></div>
+       <div class="barbg" style="height:6px;margin-top:3px"><div class="barfg" style="width:${Math.min(100,alexC[k]/Math.max(max,...Object.values(alexC))*100)}%;background:#888"></div></div></div>`).join('')}</div>
+    <h3 class="cinzel" style="color:var(--bronze)">You vs. Alexander</h3>
+    <table class="cmp"><tr><th>#</th><th>Year · Place</th><th>Your choice and reason</th><th>Alexander's choice</th><th></th></tr>
+    ${D.map((d,k)=>{const a=S.answers[d.id]||{c:-1,why:''};const s=a.c===d.alex;return `<tr><td>${k+1}</td><td><b>${d.year} BC</b><br>${esc(d.place)}</td><td><b>${LT(d,a.c)}:</b> ${esc(d.opts[a.c]?d.opts[a.c].t:'')}<br><i>"${esc(a.why)}"</i></td><td><b>${LT(d,d.alex)}:</b> ${esc(d.opts[d.alex].t)}</td><td class="${s?'same':'diffc'}">${s?'Same':'Different'}</td></tr>`}).join('')}
+    </table>
+    <h3 class="cinzel" style="color:var(--bronze)">Final question: Does Alexander deserve to be called "Great"?</h3>
+    <p style="margin-top:0">Write <b>3 or more sentences</b>. Use at least one example from your journey where he was great, and one where he was not.</p>
+    <textarea id="reflect" style="width:100%;min-height:120px;padding:10px;border:2px solid var(--bronze);border-radius:10px;font-family:inherit;font-size:1rem;background:#fffdf5" placeholder="I think Alexander does / does not deserve to be called 'Great' because…">${esc(S.reflect||'')}</textarea>
+    <div id="reflectPrint" class="hidden" style="white-space:pre-wrap;border:1px solid #999;padding:10px;border-radius:8px"></div>
+    <div class="actions noprint">
+      <button class="btn ghost" id="again">Play again</button>
+      <button class="btn" id="printBtn">🖨️ Print / save as PDF</button>
+    </div>`;
+  $('#reflect').oninput=e=>{S.reflect=e.target.value;save()};
+  $('#printBtn').onclick=()=>{const r=$('#reflectPrint');r.textContent=S.reflect||'(not answered)';r.classList.remove('hidden');$('#reflect').classList.add('hidden');window.print();r.classList.add('hidden');$('#reflect').classList.remove('hidden')};
+  $('#again').onclick=()=>{if(confirm('Start a new journey? Your answers will be cleared.')){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}};
+  window.scrollTo(0,0);
+}
+
+/* ---------------- Start ---------------- */
+function startGame(){
+  $('#start').classList.add('hidden');$('#game').classList.remove('hidden');
+  drawMap(); render();
+}
+const prev=load();
+if(prev&&prev.name){ $('#resumeBox').classList.remove('hidden'); $('#pname').value=prev.name; $('#pclass').value=prev.cls||''; }
+$('#resumeBtn').onclick=()=>{S=prev; if(S.i>=D.length){startGame();} else startGame();};
+$('#resetBtn').onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){};$('#resumeBox').classList.add('hidden')};
+$('#go').onclick=()=>{
+  const n=$('#pname').value.trim(); if(!n){$('#pname').focus();$('#pname').style.borderColor='#a8322a';return}
+  S={name:n,cls:$('#pclass').value.trim(),i:0,answers:{},order:{},reflect:""}; save(); startGame();
+};
+$('#pname').addEventListener('keydown',e=>{if(e.key==='Enter')$('#go').click()});
+</script>
+</body>
+</html>
