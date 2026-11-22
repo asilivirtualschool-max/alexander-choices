@@ -520,7 +520,7 @@ function loadMedia(d){
   };
   const v=document.createElement('video'); v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;
   v.onloadeddata=()=>{box.insertBefore(v,box.firstChild);const f=box.querySelector('.fallback');if(f)f.remove();v.play().catch(()=>{})};
-  v.onerror=()=>tryImg(['jpg','png','webp','jpeg']);
+  v.onerror=()=>{if(v.src.indexOf('/media/')>-1){v.src=d.id+'.mp4'}else tryImg(['jpg','png','webp','jpeg'])};
   v.src=MEDIA_DIR+d.id+'.mp4';
 }
 
